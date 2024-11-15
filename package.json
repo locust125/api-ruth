@@ -21,7 +21,7 @@
   },
   "name": "api_gym",
   "version": "1.0.0",
-  "main": "src/index.js",
+  "main": "index.js",
   "type": "module",
   "scripts": {
     "dev": "nodemon src/index.js",
