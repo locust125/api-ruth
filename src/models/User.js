@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import bycript from "bcrypt";
+import bcrypt from "bcrypt";  // Corrección del nombre importado
 import mongoosePaginate from "mongoose-paginate-v2";
 
 export const UserSchema = new Schema(
@@ -27,12 +27,12 @@ export const UserSchema = new Schema(
 UserSchema.plugin(mongoosePaginate);
 
 UserSchema.statics.encryptPassword = async (password) => {
-    const salt = await bycript.genSalt(10);
-    return bycript.hash(password, salt);
+    const salt = await bcrypt.genSalt(10);  // Corregido a 'bcrypt'
+    return bcrypt.hash(password, salt);
 };
 
-UserSchema.statics.comparePassword = async (password, recivePassword) => {
-    return await bycript.compare(password, recivePassword);
+UserSchema.statics.comparePassword = async (password, receivedPassword) => {
+    return await bcrypt.compare(password, receivedPassword);  // Corregido a 'bcrypt'
 };
 
 export default model("User", UserSchema);
