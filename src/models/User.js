@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import bcrypt from "bcrypt";  // Corrección del nombre importado
+import crypto from "crypto"; // Usamos el módulo integrado de Node.js
 import mongoosePaginate from "mongoose-paginate-v2";
 
 export const UserSchema = new Schema(
@@ -26,13 +26,22 @@ export const UserSchema = new Schema(
 
 UserSchema.plugin(mongoosePaginate);
 
+// Función para encriptar contraseñas manualmente
 UserSchema.statics.encryptPassword = async (password) => {
-    const salt = await bcrypt.genSalt(10);  // Corregido a 'bcrypt'
-    return bcrypt.hash(password, salt);
+    const salt = crypto.randomBytes(16).toString("hex"); // Generar un salt único
+    const hash = crypto
+        .pbkdf2Sync(password, salt, 1000, 64, "sha512") // Generar hash con el salt
+        .toString("hex");
+    return `${salt}:${hash}`; // Concatenar salt y hash
 };
 
-UserSchema.statics.comparePassword = async (password, receivedPassword) => {
-    return await bcrypt.compare(password, receivedPassword);  // Corregido a 'bcrypt'
+// Función para comparar contraseñas
+UserSchema.statics.comparePassword = async (password, storedPassword) => {
+    const [salt, originalHash] = storedPassword.split(":"); // Separar salt y hash
+    const hash = crypto
+        .pbkdf2Sync(password, salt, 1000, 64, "sha512") // Recalcular el hash
+        .toString("hex");
+    return hash === originalHash; // Comparar el hash recalculado con el almacenado
 };
 
 export default model("User", UserSchema);
